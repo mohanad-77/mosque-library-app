@@ -5,7 +5,7 @@ import 'package:mosque_library_app/models/library_book.dart';
 import 'package:mosque_library_app/models/library_loan.dart';
 
 class DemoLibrary extends ChangeNotifier {
-  // بيانات تجريبية من التصور، وليست محتوى قاعدة البيانات الحقيقية.
+  // بيانات تجريبية، وليست محتوى قاعدة البيانات الحقيقية.
   final List<LibraryBook> books = [
     LibraryBook(
       id: 'b1',
@@ -16,7 +16,6 @@ class DemoLibrary extends ChangeNotifier {
       totalCopies: 3,
       availableCopies: 2,
       shelf: 'أ-3',
-      barcodes: ['MSQ1-001', 'MSQ1-002', 'MSQ1-003'],
       pdfSize: '12 MB',
     ),
     LibraryBook(
@@ -28,7 +27,6 @@ class DemoLibrary extends ChangeNotifier {
       totalCopies: 0,
       availableCopies: 0,
       shelf: '—',
-      barcodes: const [],
       pdfSize: '3 MB',
     ),
     LibraryBook(
@@ -40,7 +38,6 @@ class DemoLibrary extends ChangeNotifier {
       totalCopies: 1,
       availableCopies: 0,
       shelf: 'ب-1',
-      barcodes: ['MSQ1-004'],
       pdfSize: null,
     ),
     LibraryBook(
@@ -52,7 +49,6 @@ class DemoLibrary extends ChangeNotifier {
       totalCopies: 2,
       availableCopies: 2,
       shelf: 'ج-2',
-      barcodes: ['MSQ1-006', 'MSQ1-007'],
       pdfSize: null,
     ),
   ];
@@ -60,7 +56,6 @@ class DemoLibrary extends ChangeNotifier {
   final List<LibraryLoan> loans = [
     LibraryLoan(
       bookId: 'b1',
-      barcode: 'MSQ1-003',
       memberId: 'T-2030',
       memberName: 'خالد محمد',
       borrowedAt: DateTime.now().subtract(const Duration(days: 5)),
@@ -68,7 +63,6 @@ class DemoLibrary extends ChangeNotifier {
     ),
     LibraryLoan(
       bookId: 'b3',
-      barcode: 'MSQ1-004',
       memberId: 'T-2040',
       memberName: 'محمد علي',
       borrowedAt: DateTime.now().subtract(const Duration(days: 20)),
@@ -82,36 +76,31 @@ class DemoLibrary extends ChangeNotifier {
     'T-2040': 'محمد علي',
   };
 
-  LibraryBook? findByBarcode(String raw) {
-    final barcode = raw.trim().toUpperCase();
-    for (final book in books) {
-      if (book.barcodes.contains(barcode)) return book;
-    }
-    return null;
-  }
-
   LibraryBook bookById(String id) => books.firstWhere((b) => b.id == id);
 
-  bool barcodeAvailable(String barcode) {
-    final book = findByBarcode(barcode);
-    if (book == null || book.availableCopies == 0) return false;
-    return !loans.any((l) => l.isActive && l.barcode == barcode.trim().toUpperCase());
-  }
-
-  String? lend({required String barcode, required String memberId}) {
-    final normalized = barcode.trim().toUpperCase();
+  // تختار الشاشة الكتاب باسمه؛ ويُحفظ المعرّف داخليًا لمنع الخلط
+  // بين كتابين يحملان العنوان نفسه.
+  String? lend({required String bookId, required String memberId}) {
+    LibraryBook? book;
+    for (final candidate in books) {
+      if (candidate.id == bookId) {
+        book = candidate;
+        break;
+      }
+    }
+    if (book == null) return 'اختر كتابًا صحيحًا من القائمة';
+    if (!book.hasPaper || book.availableCopies <= 0) {
+      return 'لا توجد نسخ ورقية متاحة لهذا الكتاب';
+    }
     final normalizedMember = memberId.trim().toUpperCase();
-    final book = findByBarcode(normalized);
-    if (book == null) return 'الباركود غير موجود في المكتبة';
-    if (!barcodeAvailable(normalized)) return 'هذه النسخة غير متاحة للإعارة';
     final memberName = members[normalizedMember];
     if (memberName == null) return 'رقم المستفيد غير مسجل في النموذج التجريبي';
+
     final today = DateTime.now();
     loans.insert(
       0,
       LibraryLoan(
         bookId: book.id,
-        barcode: normalized,
         memberId: normalizedMember,
         memberName: memberName,
         borrowedAt: today,

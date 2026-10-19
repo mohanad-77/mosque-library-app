@@ -3,7 +3,6 @@
 class LibraryLoan {
   LibraryLoan({
     required this.bookId,
-    required this.barcode,
     required this.memberId,
     required this.memberName,
     required this.borrowedAt,
@@ -12,7 +11,6 @@ class LibraryLoan {
   });
 
   final String bookId;
-  final String barcode;
   final String memberId;
   final String memberName;
   final DateTime borrowedAt;

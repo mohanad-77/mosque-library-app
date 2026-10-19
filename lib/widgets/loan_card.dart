@@ -29,7 +29,7 @@ class LoanCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text('${loan.memberName} · ${loan.memberId}',
               style: const TextStyle(fontSize: 13, color: muted)),
-          Text('النسخة: ${loan.barcode}',
+          Text('رف الكتاب: ${book.shelf}',
               style: const TextStyle(fontSize: 12, color: muted)),
           const SizedBox(height: 6),
           Row(

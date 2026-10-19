@@ -11,7 +11,6 @@ class LibraryBook {
     required this.totalCopies,
     required this.availableCopies,
     required this.shelf,
-    required this.barcodes,
     required this.pdfSize,
   });
 
@@ -23,7 +22,6 @@ class LibraryBook {
   final int totalCopies;
   int availableCopies;
   final String shelf;
-  final List<String> barcodes;
   final String? pdfSize;
 
   bool get hasPaper => totalCopies > 0;
